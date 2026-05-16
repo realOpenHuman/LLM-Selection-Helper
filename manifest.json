@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "LLM Selection Helper",
+  "version": "1.0",
+  "description": "Explain selected text using LLM",
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "http://192.168.2.7:3000/*"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  }
+}

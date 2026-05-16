@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Selection Helper README</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.8;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    h1, h2, h3 {
+      color: #111;
+    }
+
+    pre {
+      background: #1e1e1e;
+      color: #f8f8f2;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    ul {
+      padding-left: 24px;
+    }
+
+    .flow {
+      background: #fafafa;
+      border-left: 4px solid #0078ff;
+      padding: 16px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>LLM Selection Helper</h1>
+
+    <p>
+      一个基于浏览器右键菜单的文本解释工具。<br>
+      用户在网页中选中文本后，可以通过右键菜单调用本地 Node.js 服务，
+      再由服务转发请求到 DeepSeek LLM 接口，最终以弹窗形式显示解释结果。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>功能特点</h2>
+
+    <ul>
+      <li>浏览器右键选中文本即可解释</li>
+      <li>使用 DeepSeek API 生成内容</li>
+      <li>页面内弹窗显示结果</li>
+      <li>自动显示“生成中”状态</li>
+      <li>支持关闭弹窗</li>
+      <li>Node.js 服务端转发请求</li>
+      <li>自动记录请求 IP 与文本 SHA256 摘要</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>项目结构</h2>
+
+    <pre><code>.
+├── manifest.json      # 浏览器插件配置
+├── background.js      # 浏览器插件后台逻辑
+├── nodejs.js          # Node.js 服务端
+└── requests.log       # 请求日志（自动生成）
+</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>工作流程</h2>
+
+    <div class="flow">
+用户选中文本
+    ↓
+右键点击“解释”
+    ↓
+浏览器插件发送请求
+    ↓
+Node.js 服务接收请求
+    ↓
+调用 DeepSeek API
+    ↓
+返回解释结果
+    ↓
+浏览器弹窗显示
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>环境要求</h2>
+
+    <h3>浏览器插件</h3>
+
+    <p>适用于：</p>
+
+    <ul>
+      <li>Firefox</li>
+      <li>Waterfox</li>
+      <li>LibreWolf</li>
+    </ul>
+
+    <p>（当前代码使用 <code>browser.*</code> API）</p>
+
+    <h3>Node.js</h3>
+
+    <pre><code>Node.js &gt;= 18</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>安装服务端</h2>
+
+    <h3>1. 安装依赖</h3>
+
+    <pre><code>npm install express node-fetch crypto fs</code></pre>
+
+    <h3>2. 设置环境变量</h3>
+
+    <p>Linux / macOS：</p>
+
+    <pre><code>export DEEPSEEK_API_KEY=你的API_KEY</code></pre>
+
+    <p>Windows PowerShell：</p>
+
+    <pre><code>setx DEEPSEEK_API_KEY "你的API_KEY"</code></pre>
+
+    <h3>3. 启动服务</h3>
+
+    <pre><code>node nodejs.js</code></pre>
+
+    <p>启动成功后：</p>
+
+    <pre><code>Server running on 0.0.0.0:3000</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>配置浏览器插件</h2>
+
+    <p>修改 <code>background.js</code>：</p>
+
+    <pre><code>fetch("Your_host_address/api/explain", {</code></pre>
+
+    <p>替换为：</p>
+
+    <pre><code>fetch("http://127.0.0.1:3000/api/explain", {</code></pre>
+
+    <p>或者：</p>
+
+    <pre><code>fetch("http://你的IP:3000/api/explain", {</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>修改插件权限</h2>
+
+    <pre><code>"permissions": [
+  "contextMenus",
+  "activeTab",
+  "http://127.0.0.1:3000/*"
+]</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>安装浏览器插件</h2>
+
+    <p>Firefox：</p>
+
+    <pre><code>about:debugging</code></pre>
+
+    <pre><code>This Firefox
+→ Load Temporary Add-on
+→ 选择 manifest.json</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>使用方法</h2>
+
+    <ol>
+      <li>打开网页</li>
+      <li>选中一段文本</li>
+      <li>右键</li>
+      <li>点击 “解释”</li>
+      <li>等待 LLM 返回结果</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>日志功能</h2>
+
+    <p>服务端会自动记录：</p>
+
+    <ul>
+      <li>请求 IP</li>
+      <li>文本 SHA256 摘要</li>
+    </ul>
+
+    <p>日志文件：</p>
+
+    <pre><code>requests.log</code></pre>
+
+    <p>示例：</p>
+
+    <pre><code>127.0.0.1 - 8f14e45fceea167a5a36dedd4bea2543...</code></pre>
+
+    <p>
+      注意：
+    </p>
+
+    <ul>
+      <li>不保存原文</li>
+      <li>仅保存摘要</li>
+      <li>可用于审计与统计</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>安全建议</h2>
+
+    <pre><code>"X-EXTENSION-TOKEN": "your-secret"</code></pre>
+
+    <p>建议：</p>
+
+    <ul>
+      <li>使用真实随机 Token</li>
+      <li>服务端验证 Token</li>
+      <li>限制来源 IP</li>
+      <li>添加请求频率限制</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>DeepSeek 模型配置</h2>
+
+    <p>当前模型：</p>
+
+    <pre><code>model: "deepseek-v4-flash"</code></pre>
+
+    <p>可替换：</p>
+
+    <pre><code>deepseek-chat
+deepseek-reasoner</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>已实现特性</h2>
+
+    <ul>
+      <li>右键菜单</li>
+      <li>页面弹窗</li>
+      <li>Loading 状态</li>
+      <li>错误处理</li>
+      <li>DeepSeek API 转发</li>
+      <li>日志记录</li>
+      <li>SHA256 摘要</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>后续可扩展功能</h2>
+
+    <ul>
+      <li>Markdown 渲染</li>
+      <li>流式输出</li>
+      <li>多模型切换</li>
+      <li>历史记录</li>
+      <li>本地缓存</li>
+      <li>暗黑模式</li>
+      <li>快捷键支持</li>
+      <li>多语言解释</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>License</h2>
+
+    <p>MIT License</p>
+  </div>
+
+</body>
+</html>
